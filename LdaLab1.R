@@ -7,7 +7,6 @@
 ## ==============================
 mu <- 3; si <- 2
 al <- 0.5; la <- 55
-windows(width = 15)
 par(mfrow = 1:2, las = 1, font = 2, font.axis = 2, font.lab = 4,
     mar = c(5, 4, 1, 2), bty = "n", xaxs = "i", yaxs = "i")
 curve(plnorm(x, mu, si, lower.tail = FALSE), from = 0, to = 100, lwd = 3,
@@ -22,7 +21,6 @@ axis(2, seq(0.1, 0.9, 0.1))
 ## What shape do the corresponding hazard functions have?
 ## ------------------------------------------------------
 library(eha)
-windows(width = 15)
 par(mfrow = 1:2, las = 1, font = 2, font.axis = 2, font.lab = 4,
     mar = c(5, 4, 1, 2), bty = "n", xaxs = "i", yaxs = "i")
 curve(hlnorm(x, mu, si), from = 0, to = 100, lwd = 3, ylim = c(0, 0.07),
@@ -32,7 +30,6 @@ curve(hweibull(x, al, la), from = 0, to = 100, lwd = 3, ylim = c(0, 0.07),
       xlab = "Time", ylab = expression(lambda(t)))
 axis(1, seq(10, 90, 20))
 
-windows(width = 15)
 par(mfrow = 1:2, las = 1, font = 2, font.axis = 2, font.lab = 4,
     mar = c(5, 4, 1, 2), bty = "n", xaxs = "i", yaxs = "i")
 curve(hlnorm(x, mu, si), from = 0, to = 10, lwd = 3, ylim = c(0, 0.08),
@@ -120,3 +117,4 @@ with(subset(ratcancer, group == "Group 1"),
 with(subset(ratcancer, group == "Group 2"),
      cumhazPlot(times, cens, distr = c("weibull", "loglog", "lognormal"),
                 ggplo = TRUE))
+
