@@ -1,0 +1,5 @@
+# Exercise 4 (turnover)
+setwd("/home/ajo/gitRepos/lifetime/Exercises2")
+load("Assign2Exer4.RData")
+head(turnover)
+summary(turnover)
