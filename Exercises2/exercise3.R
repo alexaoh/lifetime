@@ -18,7 +18,8 @@ for (i in 1:length(Times)) {
 }
 
 
-par(font = 2, font.axis = 2, font.lab = 4, las = 1)
+par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
+    mar = c(5, 5, 4, 2), bty = "l", cex.lab = 1.5, cex.axis = 1.25)
 plot(65 + Times, Nrisk, type = "S", lwd = 3, xlab = "Age [Years]",
      ylab = "Individuals at risk", bty = "n", col = 2,
     yaxs = "i", xaxs = "i")
@@ -49,6 +50,7 @@ plot(sch70, conf.int = F, lwd = 2, col = "red", lty = 1, xlab = "Age [Years]",
      ylab = expression(bolditalic(hat(S)(t))), xlim = c(65, 108), ylim = c(0,1))
 lines(sch85, conf.int = F, lwd = 2, col = "blue", lty = 2)
 axis(1, at = seq(65, 105, 5))
+axis(2, at = seq(0, 1, 0.1))
 title("Conditional survival functions of men older than 70 and 85 years")
 legend("bottomleft", legend = c(" > 70", " > 85"),
        col = c("red", "blue"), lty = c(1, 2), lwd = 2, bty = "n")
@@ -70,7 +72,7 @@ lines(sch85, conf.int = F, lwd = 2, col = "blue", lty = 1)
 lines(sch70.nontrunc, conf.int = F, lwd = 2, col = "red", lty = 2)
 lines(sch85.nontrunc, conf.int = F, lwd = 2, col = "blue", lty = 2)
 axis(1, at = seq(65, 105, 5))
+axis(2, at = seq(0, 1, 0.1))
 title("Conditional survival functions of men older than 70 and 85 years")
 legend("bottomleft", legend = c(" > 70", " > 85", " > 70 non-trunc", " > 85 non-trunc"),
        col = c("red", "blue", "red", "blue"), lty = c(1, 1, 2, 2), lwd = 2, bty = "n")
-
