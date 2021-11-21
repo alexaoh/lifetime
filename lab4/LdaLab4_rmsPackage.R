@@ -2,6 +2,7 @@
 ## Lifetime Data Analysis, Course 2021/22
 ## 9.11.2021: Function survplot of the rms package
 ## ===============================================
+setwd("/home/ajo/gitRepos/lifetime/lab4")
 library(survival)
 load("LdaLab4.RData")
 ls.str()

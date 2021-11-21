@@ -57,7 +57,7 @@ plot(survfit(skid2t), col = 3:4, xlab = "Time to infection [Months]",
      lty = 1:2, ylab = expression(bold(hat(S)(t))), lwd = 3, yaxs = "i",
      bty = "l")
 title("Survival functions according to catheter type")
-legend("bottomleft", levels(kidney$type), title = "Catheter placement",
+legend("bottomleft", legend = levels(kidney$type), title = "Catheter placement",
        bty = "n", col = 3:4, lty = 1:2, lwd = 3)
 
 
@@ -98,9 +98,11 @@ axis(1, at = seq(60, 100, 5))
 title("Conditional survival functions of people older than 68 years")
 legend("bottomleft", levels(channing$sex), col = 2:3, lwd = 3, bty = "n")
 
-#survdiff(Surv(agee, aged, status) ~ sex, channing) # Right censored data only!
-summary(coxph(Surv(agee, aged, status) ~ sex, channing)) # This works for truncated data (after fitting the cox model).
+#survdiff(Surv(agee, aged, status) ~ sex, sub68) # Right censored data only!
+summary(coxph(Surv(agee, aged, status) ~ sex, sub68)) # This works for truncated data (after fitting the cox model).
 # This can hence be used to apply a non-parametric logrank test to left-truncated data.
+## See: https://stat.ethz.ch/pipermail/r-help/2009-August/399999.html
+## ==> Fit of a Cox model
 
 ## Stratified tests
 ## ================
@@ -132,3 +134,26 @@ legend("bottomright", c("Group NHL allo", "Group NHL auto", "Group HOD allo",
 # The interaction is apparent because: Groupd NHL allo is better then auto (in red), but it is the other way around for the green
 # (in the green the auto is better than allo). Perhaps there is an interaction between the group and the allo/auto (if I understood correctly).
 survdiff(Surv(time,delta) ~ gtype + strata(dtype), hodg) # strata gives stratified test. 
+## With these data, a stratified test is not a good idea, because the effect of
+## the graft type seems to be different among both diseases. We would better
+## compare both graft types separately.
+## Nontheless, let's see how to do a stratified test in R:
+
+## Back to the "remission" data
+## ----------------------------
+svf <- survfit(Surv(time, cens) ~ status + treat, remission)
+svf
+
+windows(width = 10, height = 8)
+par(font = 2, font.axis = 2, font.lab = 4, las = 1, mar = c(5, 5, 4, 2))
+plot(svf, col = c(3, 3, 4, 4), xlab = "Time to relapse [Weeks]",
+     lty = 1:2, ylab = expression(bold(hat(S)(t))), lwd = 3, yaxs = "i",
+     bty = "l")
+title("Survival functions of time to death or relapse")
+legend("topright", names(svf$strata), bty = "n",
+       col = c(3, 3, 4, 4), lty = 1:2, lwd = 3)
+
+## Here, a stratified test is not necessary, because of the balanced study design:
+with(remission, table(treat, status))
+## Nonetheless ...
+survdiff(Surv(time, cens) ~ treat + strata(status), remission)
