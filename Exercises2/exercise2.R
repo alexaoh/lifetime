@@ -53,14 +53,12 @@ par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
 plot(hazard2, main = "Smoothed estimate of hazard function for percutaneous placement", ylab = expression(bold(hat(lambda)(t))), 
      xlab = "Time to renal infection [Months]")
 
-# Kan jeg beregne Hazardene med Nelson-Aalen for å se om disse gir mening!?
-
 # d) Estimated probabilities of not suffering renal infection after 6, 12, 18, 24 and 30 months?
 surv.group1 <- with(kidney[kidney$type == "Surgically",], Surv(time, delta))
 sfit.group1 <- survfit(surv.group1 ~ type, data = kidney[kidney$type == "Surgically",])
 plot(sfit.group1)
 abline(v=c(6,12,18,24,30))
-summary(sfit.group1) # Kanskje best å bare lese av fra summaryen!
+summary(sfit.group1) # Easiest to just read the values off the summary.
 (surv.times.df <- data.frame(sfit.group1$time, sfit.group1$surv, sfit.group1$lower, sfit.group1$upper))
 surv.times.df[c(5.5, 11.5, 16.5, 23.5, 26.5), ] # 23.5 does not work for some reason, but I can see it.
 
@@ -68,7 +66,7 @@ surv.group2 <- with(kidney[kidney$type == "Percutaneously",], Surv(time, delta))
 sfit.group2 <- survfit(surv.group2 ~ type, data = kidney[kidney$type == "Percutaneously",])
 plot(sfit.group2)
 abline(v=c(6,12,18,24,30))
-summary(sfit.group2) # Kanskje best å bare lese av fra summaryen!
+summary(sfit.group2) # Easiest to just read the values off the summary.
 (surv.times.df.2 <- data.frame(sfit.group2$time, sfit.group2$surv, sfit.group2$lower, sfit.group2$upper))
 surv.times.df.2[c(5.5, 11.5, 16.5, 24.5, 28.5, 15.5), ] # Are some NAs because some of them dont exist in summary I think. 
 

@@ -28,7 +28,6 @@ axis(2, at = seq(0, 45, 5))
 title("Elderly data: number of men at risk")
 #legend("left", c("Men"), col = 2, lwd = 3, bty = "n")
 
-
 # c) Conditional survival functions.
 # Translation in x to make the next tasks a bit easier.
 d2 <- d

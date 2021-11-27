@@ -59,7 +59,7 @@ axis(2, at = seq(0, 1, 0.1))
 # c) Test of hypothesis with Fleming Harrington. Testing the hypothesis:
 # Time to turnover does not depend on the employee's gender.
 skd <- with(turnover, Surv(stag, event) ~ gender)
-FHtestrcc(skd) # rho = 0 and lambda = 0 is logrank?
+FHtestrcc(skd) # rho = 0 and lambda = 0 is logrank.
 FHtestrcc(skd, rho = 1) # Emphasizes earlier differences (lambda = 0) and positive rho.
 FHtestrcc(skd, lambda = 1) # Emphasizes later differences (rho = 0) and positive lambda.
 FHtestrcc(skd, rho = 1, lambda = 1) # Emphasized differences towards the middle (rho = lambda)
@@ -67,9 +67,4 @@ FHtestrcc(skd, rho = 0.5, lambda = 2) # Emphasizes differently also, more toward
 # Anyhow, none of these tests give significant results to any reasonable level. 
 
 # d) Test the hypothesis with a stratified test. What is the conclusion now. 
-# I am guessing that we take the gender of the supervisor into account here! (The stratification). 
-# Also I am guessing that the conclusion would be different!
 survdiff(Surv(stag, event) ~ gender + strata(headgend), data = turnover) # strata gives stratified test. 
-# Almost or pretty much significant. Is this code correct?
-
-# Comments on differences between the tests? Stratified vs Unstratified, have a look in the theory. 
