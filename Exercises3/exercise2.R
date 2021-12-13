@@ -26,7 +26,7 @@ cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"))
 svf <- survfit(Surv(obs, cens) ~ 1, stype = 2, ctype = 1)
 svf
 summary(svf)
-
+# 
 ## Uncensored survival times
 times <- summary(svf)$time
 

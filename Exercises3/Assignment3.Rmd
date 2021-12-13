@@ -1,0 +1,185 @@
+---
+title: "Exercises Topic 5 and &"
+subtitle: "Lifetime Data Analysis - Autumn 2021"
+author: "Alexander and Ulrik"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+params: 
+  show_code: FALSE
+output: 
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 3
+    theme: readable
+    highlight: textmate
+    number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = params$show_code, warning = F)
+setwd("/home/ajo/gitRepos/lifetime/Exercises3")
+rm(list = ls())
+library(KMsurv)
+library(rms)
+library(survival)
+library(FHtest)
+library(GofCens)
+```
+
+# Exercise 1
+The data frame $\textbf{tongue}$ of the R package $\textbf{KMsurv}$ contains the survival times (in weeks) of 80 patients with oral cancer. The objective of this exercise is to study the possible relation of this cancer with the tumour DNA profile, which is either aneuploid or diploid.
+
+```{r, results = "hide"}
+data(tongue)
+head(tongue)
+str(tongue)
+```
+
+
+## 1.a)
+
+The survival curves are plotted below. Observe that the survival of the aneuploid tumour is greater than the survival of the diploid tumour. 
+
+```{r}
+# a) Draw the survival curves. 
+s <- with(tongue, Surv(time, delta))
+t <- npsurv(s ~ type, tongue)
+
+par(font = 2, font.axis = 2, font.lab = 4, las = 1, mar = c(5, 5, 4, 2))
+survplot(t, ylab = expression(bold(hat(S)(t))), col = 1:2, lwd = 3, conf = "none")
+title("Survival functions according to tumour DNA profile")
+```
+
+## 1.b) 
+
+The logrank test is used to test the hypothesis that survival is not related to tumour type. The hypothesis that is tested can be formulated as 
+$$
+\begin{equation}
+        H_0: S_1(t) = S_2(t) \text{ vs. } H_1: S_1(t) \neq S_2(t),
+\end{equation}
+$$
+    
+where $S_1(t)$ and $S_2(t)$ refer to the survival curves of tumour type 1 and 2 respectively. 
+    
+The result from the logrank test is a $Z$-value of 1.7 and a $p$-value of $0.0949$, which means that we would conclude not to reject $H_0$ when choosing any reasonable significance level for the $p$-value. This means that, according to the logrank test, there is not enough evidence to conclude that the tumour DNA profile is related to the survival of the cancer patients, i.e. one does not conclude that one of the tumour profile leads to more severe cancer. 
+
+```{r}
+# b) Logrank test. 
+s2 <- with(tongue, Surv(time, delta) ~ type)
+FHtestrcc(s2)
+```
+
+## 1.c)
+
+The log-logistic regression model is fitted with the single covariate 'Tumour type'. This model is used to test the same hypothesis as in \textbf{b)}. In this case, the null and alternative hypothesis can be formulated as ... \textcolor{red}{Hva er forskjellen? Les gjennom slides. } in this framework. 
+
+```{r}
+# c) Fit log-logistic model and use the model to test the same hypothesis. 
+loglogistic <- survreg(s ~ type, data = tongue, dist = "loglogistic")
+summary(loglogistic)
+```
+
+## 1.d)
+
+The odds ratio and the acceleration factor is estimated given the model. 
+    
+The interpretations of these measures are ...
+
+## 1.e) 
+
+The residuals of the log-logistic regression model are plotted below. As one can see, the standard logistic distribution seems to fit the residual KM-estimate well \textcolor{red}{Omformuler dette litt}, which can be used as an indication that the log-logistic model is appropriate for this data. 
+
+```{r}
+loglo.pred <- predict(loglogistic, type = "linear")
+resids.loglo <- (log(tongue$time) - loglo.pred) / loglogistic$scale
+
+par(font = 2, font.axis = 2, font.lab = 2, las = 1, mar = c(5, 5, 4, 2))
+plot(survfit(Surv(resids.loglo, tongue$delta) ~ 1), col = c(1,2,2), xlab = "Residuals",
+     ylab = expression(bolditalic(hat(S)(t))),
+     lty = 1, lwd = 3, yaxs = "i", xaxs = "i", bty = "n")
+title("Residuals of the log-logistic Regression Model")
+curve(plogis(x, lower.tail = F), from = min(resids.loglo), to = max(resids.loglo), col = 3, lwd = 3,
+      add = TRUE)
+legend("bottomleft", c("KM estimate", "95% - CI", "Stand. Logistic Distribution"),
+       col = c(1, 2, 3), lty = c(1, 2, 1), lwd = 3, bty = "n")
+```
+
+# Exercise 2
+
+## 2.a)
+
+```{r, echo = T}
+RVT <- rlnorm(300, meanlog = log(2), sdlog = 1) # Gir ikke sd(RVT) = 1?
+```
+
+## 2.b) 
+
+```{r, echo = T}
+RVC <- rexp(300, rate = 1/20)
+```
+
+## 2.c)
+
+```{r, echo = T}
+obs <- pmin(RVT, RVC)
+cens <- as.numeric(RVT <= RVC)
+table(cens)
+
+## Checking
+head(cbind(RVT, RVC, obs, cens))
+```
+
+## 2.d)
+
+Draw the cumulative hazard plots for Weibull and log-logistic. Which model fits better?
+
+```{r}
+
+#cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"), ggplo = T)
+cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"))
+# Fungerer ikke med libraryen nå!
+# NOE GALT MED RVT!
+
+# Manuelle plot: 
+svf <- survfit(Surv(obs, cens) ~ 1, stype = 2, ctype = 1)
+#svf
+#summary(svf)
+
+## Uncensored survival times
+times <- summary(svf)$time
+
+## Nelson-Aalen estimate of the cumulative hazard function
+chaz <- -log(summary(svf)$surv)
+
+## The probability plots
+## quartz(width = 14)
+par(mfrow = c(1, 2), las = 1, font.lab = 4, font.axis = 2, pch = 16)
+plot(log(chaz) ~ log(times), xlab = "Log(Time)",
+     ylab = "Log(Cumulative hazard)", col = 4)
+abline(lm(log(chaz) ~ log(times)), lwd = 3)
+title("Check for Weibull distribution")
+
+plot(log(exp(chaz) - 1) ~ log(times), xlab = "Log(Time)",
+     ylab = "Log(Exp(Cumulative hazard) - 1)", cex = 1.3, col = 4)
+abline(lm(log(exp(chaz) - 1) ~ log(times)), lwd = 3)
+title("Check for Log-logistic distribution")
+```
+
+# Exercise 3
+
+We assume that the model assumptions of the Cox proportional hazards model hold for a continuous survival time $T$ and several covariates $\mathbf{Z} = (Z_1, \ldots, Z_p)^T$, i.e., 
+
+$$
+\begin{equation*}
+    \lambda(t;\mathbf{z}) = \lambda_0(t)\exp(\mathbf{\beta}^T\mathbf{z}), 
+\end{equation*}
+$$
+
+but that the survival times are grouped in the intervals 
+
+# Exercise 4
+
+The data frame $\textbf{hodg}$ of the $\textbf{KMsurv}$ package contains the times until relapse or death of 43 lymphoma patients that underwent a bone marrow transplant. 
+
