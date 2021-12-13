@@ -108,13 +108,27 @@ legend("bottomleft", c("KM estimate", "95% - CI", "Stand. Logistic Distribution"
 
 # Exercise 2
 
+Following, we will generate survival times from a log-normal distribution and check whether the Weibull or the log-logistic distribution fit better to the data. 
+
 ## 2.a)
 
+300 survival times from a log-normal distribution with parameters $\mu = 2$ and $\sigma = 1$ are generated below. 
+
 ```{r, echo = T}
-RVT <- rlnorm(300, meanlog = log(2), sdlog = 1) # Gir ikke sd(RVT) = 1?
+set.seed(1)
+mu <- 2
+sigma <- 1
+location <- log(mu^2 / sqrt(sigma^2 + mu^2))
+shape <- sqrt(log(1 + (sigma^2 / mu^2)))
+RVT <- rlnorm(3000, meanlog = location, shape)
+# https://en.wikipedia.org/wiki/Log-normal_distribution#Arithmetic_moments
+# https://msalganik.wordpress.com/2017/01/21/making-sense-of-the-rlnorm-function-in-r/
 ```
 
+
 ## 2.b) 
+
+300 censoring times from an exponential distribution with mean 20 are generated below. 
 
 ```{r, echo = T}
 RVC <- rexp(300, rate = 1/20)
@@ -122,49 +136,22 @@ RVC <- rexp(300, rate = 1/20)
 
 ## 2.c)
 
+The variables $Y = \min(T, C)$ and $\delta = \mathbf{1}_{T\leq C}$ are created below. The table below shows the counts of exact failure times and censoring times.
+
 ```{r, echo = T}
 obs <- pmin(RVT, RVC)
 cens <- as.numeric(RVT <= RVC)
-table(cens)
-
-## Checking
-head(cbind(RVT, RVC, obs, cens))
+(tab <- table(cens))
 ```
+
+The proportion of right-censored survival times is thus `r round(tab[[1]]/tab[[2]], 3)`.
 
 ## 2.d)
 
-Draw the cumulative hazard plots for Weibull and log-logistic. Which model fits better?
+The cumulative hazard plots for the Weibull and the log-logistic distributions are plotted below. It looks like the log-logistic distribution fits the data better than the Weibull model, since the latter is clearly a bad fit. 
 
-```{r}
-
-#cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"), ggplo = T)
-cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"))
-# Fungerer ikke med libraryen nå!
-# NOE GALT MED RVT!
-
-# Manuelle plot: 
-svf <- survfit(Surv(obs, cens) ~ 1, stype = 2, ctype = 1)
-#svf
-#summary(svf)
-
-## Uncensored survival times
-times <- summary(svf)$time
-
-## Nelson-Aalen estimate of the cumulative hazard function
-chaz <- -log(summary(svf)$surv)
-
-## The probability plots
-## quartz(width = 14)
-par(mfrow = c(1, 2), las = 1, font.lab = 4, font.axis = 2, pch = 16)
-plot(log(chaz) ~ log(times), xlab = "Log(Time)",
-     ylab = "Log(Cumulative hazard)", col = 4)
-abline(lm(log(chaz) ~ log(times)), lwd = 3)
-title("Check for Weibull distribution")
-
-plot(log(exp(chaz) - 1) ~ log(times), xlab = "Log(Time)",
-     ylab = "Log(Exp(Cumulative hazard) - 1)", cex = 1.3, col = 4)
-abline(lm(log(exp(chaz) - 1) ~ log(times)), lwd = 3)
-title("Check for Log-logistic distribution")
+```{r, results="hide"}
+cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"), ggplo = T)
 ```
 
 # Exercise 3
@@ -183,3 +170,41 @@ but that the survival times are grouped in the intervals
 
 The data frame $\textbf{hodg}$ of the $\textbf{KMsurv}$ package contains the times until relapse or death of 43 lymphoma patients that underwent a bone marrow transplant. 
 
+## 4.a)
+
+The variables **gtype** and **dtype** are turned into factors. 
+
+```{r}
+data(hodg)
+str(hodg)
+hodg$gtype <- as.factor(hodg$gtype)
+hodg$dtype <- as.factor(hodg$dtype)
+```
+
+## 4.b
+
+Survival curves corresponding to the four combinations of graft and disease types are plotted below. 
+
+```{r}
+srem <- with(hodg, Surv(time, delta))
+svf <- survfit(srem ~ gtype + dtype, data = hodg)
+
+par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
+    mar = c(5, 5, 4, 2), bty = "l", cex.lab = 1.5, cex.axis = 1.25)
+plot(svf, conf.int = F, lwd = 2, col = 1:4, lty = 1:4, xlab = "Time to death or relapse [days]",
+     ylab = expression(bolditalic(hat(S)(t))), ylim = c(0,1))
+axis(1, at = seq(0, 2000, 250))
+axis(2, at = seq(0, 1, 0.1))
+title("Survival Functions of All Combinations of Graft and Disease Types")
+legend("bottomright", legend = levels(hodg$gtype:hodg$gtype),
+       col = 1:4, lty = 1:4, lwd = 2, bty = "n")
+```
+
+The leftmost number in the legend is **gtype** and the rightmost number is **dtype**. COULD IMPROVE HOW THE LEGEND LOOKS LATER! Perhaps also change the xlim. 
+
+It looks like the different combinations of graft and disease types yield significantly different survival times. When looking at longevity, the combination of allogenic graft type and Non Hodgkin lymphoma yields the largest survival (1:1), followed by autologous graft type and Hodgkins disease (2:2). The combination of allogenic graft type and Hodgkins disease (1:2) seams to yield very low survival. However, not that this combination has far fewer events than the other combinations in the data set (5, compared to 11, 12 and 15). 
+CLEAN THIS UP A BIT. 
+
+## 4.c)
+
+Fit the proportional hazards model that includes graft type, disease type, the interaction of both and the Karnofsky index.   
