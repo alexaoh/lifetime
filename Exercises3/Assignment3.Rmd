@@ -19,7 +19,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = params$show_code, warning = F)
-setwd("/home/ajo/gitRepos/lifetime/Exercises3")
+#setwd("/home/ajo/gitRepos/lifetime/Exercises3")
 rm(list = ls())
 library(KMsurv)
 library(rms)
@@ -156,15 +156,41 @@ cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"), ggplo = T)
 
 # Exercise 3
 
-We assume that the model assumptions of the Cox proportional hazards model hold for a continuous survival time $T$ and several covariates $\mathbf{Z} = (Z_1, \ldots, Z_p)^T$, i.e., 
-
-$$
+Assume that the model assumptions for the Cox proportional hazards model holds for a continuous survival time $T$ with covariates $\textbf{Z} = (Z_1, \hdots, Z_p)'$, i.e., that,
 \begin{equation*}
-    \lambda(t;\mathbf{z}) = \lambda_0(t)\exp(\mathbf{\beta}^T\mathbf{z}), 
+        \lambda(t; \textbf{z}) = \lambda_0(t) \exp (\boldsymbol{\beta'z}), 
 \end{equation*}
-$$
+but that the survival times are grouped in the intervals $[0 = a_0, a_1), \hdots, [a_{g-1}, a_g)$.
+The corresponding hazards are defined as 
+\begin{equation*}
+        \lambda_j(\textbf{z}) = P(T < a_j |T \geq a_{j-1}; \textbf{z}), \ j = 1, \hdots, g.
+\end{equation*}
+Then we can write 
+\begin{align*}
+        1 - \lambda_j(\textbf{z}) &= P(T \geq a_j | T \geq a_{j-1}; \textbf{z}) \\
+                                  &= \frac{P(T \geq a_j, T \geq a_{j-1} ; \textbf{z})}{P(T \geq a_{j-1}; \textbf{z})} \\
+                                  &= \frac{P(T \geq a_j; \textbf{z})}{P(T \geq a_{j-1}; \textbf{z})}.
+\end{align*}
+First we observe that 
+\begin{align*}
+        P(T \geq a_j ; \textbf{z}) &= S_\textbf{z}(a_j) \\\
+                                   &= \exp (- \Lambda_\textbf{z}(a_j)) \\
+                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)\exp (\boldsymbol{\beta'z}dt + \hdots + \int_{a_{j-1}}^{a_j}\lambda_0(t)\exp(\boldsymbol{\beta'z}dt)))) \\
+                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)dt + \hdots + \int_{a_{j-1}}^{a_j}\lambda_0(t)dt)\exp (\boldsymbol{\beta'z})) \\
+                                   &= \left( \exp(-\Lambda_\textbf{0}(a_j)) \right)^{\exp (\boldsymbol{\beta'z})} \\
+                                   &= (P(T \geq a_j ; \textbf{0}))^{\exp (\boldsymbol{\beta'z})}.
+\end{align*}
+The exact same argument for $P(T \geq a_{j-1} ; \textbf{z})$ gives us 
+\begin{align*}
+        1 - \lambda_j(\textbf{z}) &= \left( \frac{P(T \geq a_j; \textbf{0})}{P(T \geq a_{j-1}; \textbf{0})} \right)^{\exp (\boldsymbol{\beta'z})} \\
+                                  &= (1 - \lambda_j(\textbf{0}))^{\exp (\boldsymbol{\beta'z})}
+\end{align*}
+or equivalently
+\begin{equation*}
+        \log (1 - \lambda_j(\textbf{z})) = (1 - \lambda_j) \exp (\boldsymbol{\beta'z}).
+\end{equation*}
 
-but that the survival times are grouped in the intervals 
+
 
 # Exercise 4
 
