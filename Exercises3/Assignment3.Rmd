@@ -244,3 +244,12 @@ CLEAN THIS UP A BIT.
 ## 4.c)
 
 Fit the proportional hazards model that includes graft type, disease type, the interaction of both and the Karnofsky index.   
+
+```{r}
+proph <- coxph(srem ~ gtype + dtype + gtype:dtype + score, data = hodg)
+summary(proph)
+```
+
+## 4.d)
+
+
