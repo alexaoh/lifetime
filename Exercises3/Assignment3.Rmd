@@ -40,7 +40,8 @@ str(tongue)
 
 ## 1.a)
 
-The survival curves are plotted below. Observe that the survival of the aneuploid tumour is greater than the survival of the diploid tumour. 
+The survival curves are plotted below. Observe that the survival of the aneuploid tumour is greater than the survival of the diploid tumour.  
+As the survival curves do not go to zero there is right censoring in both groups.
 
 ```{r}
 # a) Draw the survival curves. 
@@ -73,7 +74,15 @@ FHtestrcc(s2)
 
 ## 1.c)
 
-The log-logistic regression model is fitted with the single covariate 'Tumour type'. This model is used to test the same hypothesis as in \textbf{b)}. In this case, the null and alternative hypothesis can be formulated as ... \textcolor{red}{Hva er forskjellen? Les gjennom slides. } in this framework. 
+The log-logistic regression model is fitted with the single covariate 'Tumour type'. This model is used to test the same hypothesis as in \textbf{b)}. In this case, the null and alternative hypothesis can be formulated as 
+$$
+  H_0: \gamma_1 = 0 \text{ vs. } H_1 : \gamma_1 \neq 0,
+$$
+where $\gamma_1$ is the covariate coefficent for tumour DNA profile in the model.
+The regression gives $\gamma_1 = -0.79$ with $p$-value 0.051, which 
+gives significant evidence to reject the null hypothesis. 
+I.e., the test suggests that DNA profile has an impact on the survival time of
+cancer patients.
 
 ```{r}
 # c) Fit log-logistic model and use the model to test the same hypothesis. 
@@ -82,10 +91,24 @@ summary(loglogistic)
 ```
 
 ## 1.d)
+Since the log-logistic model can be viewed as a proportional odds model,
+the odds ratio $\exp \{ \boldsymbol{\beta'Z} \} = \exp \{ -\boldsymbol{\gamma'Z}/\sigma \}$
+indicates how the odds to survive change with respect to covariates $\textbf{Z}$
+compared to $\textbf{Z = 0}$.
+For this model a patient with DNA profile diploid has a survival odds 2.28
+times higher than a patient with DNA profile aneuploid.
 
-The odds ratio and the acceleration factor is estimated given the model. 
-    
-The interpretations of these measures are ...
+Similarly, the accelerated factor $\exp \{ \boldsymbol{-\gamma'Z} \}$ 
+describes the change in time scale compared to the baseline 
+$\textbf{Z = 0}$. (Not quite sure what this means)?
+Since the scale parameter is close to one, the accelerated factor is  close
+to the odds ratio, specifically 2.205.
+
+```{r}
+with(loglogistic, exp(-coefficients[2] / scale))  # Odds ratio
+with(loglogistic, exp(-coefficients[2]))  # Accelerated factor
+```
+
 
 ## 1.e) 
 
@@ -234,3 +257,9 @@ CLEAN THIS UP A BIT.
 ## 4.c)
 
 Fit the proportional hazards model that includes graft type, disease type, the interaction of both and the Karnofsky index.   
+
+```{r}
+cox.mod <- coxph(srem ~ gtype + dtype + gtype:dtype + score, data = hodg)
+summary(cox.mod)
+```
+
