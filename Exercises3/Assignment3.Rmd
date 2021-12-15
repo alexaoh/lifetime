@@ -267,19 +267,39 @@ CLEAN THIS UP A BIT.
 ## 4.c)
 
 Fit the proportional hazards model that includes graft type, disease type, the interaction of both and the Karnofsky index.   
+All test shows that the model is significantly better than the baseline.
+The Karnofsky index is significant. 
+How do we interpret dtype/gtype here?
+
 
 ```{r}
-<<<<<<< HEAD
-cox.mod <- coxph(srem ~ gtype + dtype + gtype:dtype + score, data = hodg)
-summary(cox.mod)
-```
-
-=======
 proph <- coxph(srem ~ gtype + dtype + gtype:dtype + score, data = hodg)
 summary(proph)
 ```
 
 ## 4.d)
+Estimate the hazard ratios associated to the graft type and interpret both values.
+
+The hazard ratio measures the comparative instantaneous risk of death.
+Since there exists interaction between the graph type and the disease type,
+two hazard ratios is computed, one for patients with non Hodgkin lymphoma,
+and one for patients with Hodgkins disease. The 
+hazard ratios are 1.704 and 0.326 respectively.
+This means that patients receiving an autologous graft have 1.704 times higher 
+instantaneous risk of dying, given that the disease type is non Hodgkin lymphoma
+and the Karnofsky index is the same. 
+Similarly, patients receiving an autologous graft have 0.326 times lower 
+instantaneous risk of dying, given that the disease type is Hodgkins disease
+and the Karnofsky index is the same. 
+
+```{r}
+library(Epi)
+ctmat <- matrix(c(1,0,0,0,1,0,0,1), byrow = TRUE, nr = 2)
+HRmat <- round(ci.lin(proph, ctr.mat = ctmat, Exp = TRUE), 3)[, c(1, 5:7)]
+rownames(HRmat) <- c("HR| Non Hodgkin lymphoma", "HR| Hodgkins disease")
+colnames(HRmat) <- c("logHR", "HR", "Lower 95%", "Upper 95%")
+HRmat
+```
 
 
->>>>>>> add40a7232a5f259de44efe4c06dc3c636ff3223
+
