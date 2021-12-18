@@ -218,13 +218,14 @@ The data frame $\textbf{hodg}$ of the $\textbf{KMsurv}$ package contains the tim
 
 ## 4.a)
 
-The variables **gtype** and **dtype** are turned into factors. 
+The variables **gtype** and **dtype** are converted into factors. 
 
 ```{r}
 data(hodg)
 str(hodg)
-hodg$gtype <- as.factor(hodg$gtype)
-hodg$dtype <- as.factor(hodg$dtype)
+hodg$gtype <- factor(hodg$gtype, labels = c("allo", "auto"))
+hodg$dtype <- factor(hodg$dtype, labels = c("NonHodgk", "Hodgk"))
+str(hodg)
 ```
 
 ## 4.b
@@ -238,31 +239,33 @@ svf <- survfit(srem ~ gtype + dtype, data = hodg)
 par(las = 1, font = 2, font.axis = 2, font.lab = 4, xaxs = "i", yaxs = "i",
     mar = c(5, 5, 4, 2), bty = "l", cex.lab = 1.5, cex.axis = 1.25)
 plot(svf, conf.int = F, lwd = 2, col = 1:4, lty = 1:4, xlab = "Time to death or relapse [days]",
-     ylab = expression(bolditalic(hat(S)(t))), ylim = c(0,1))
+     ylab = expression(bolditalic(hat(S)(t))), ylim = c(0,1), xlim = c(0, 1500))
 axis(1, at = seq(0, 2000, 250))
 axis(2, at = seq(0, 1, 0.1))
 title("Survival Functions of All Combinations of Graft and Disease Types")
-legend("bottomright", legend = levels(hodg$gtype:hodg$gtype),
+legend("bottomright", legend = levels(hodg$gtype:hodg$dtype),
        col = 1:4, lty = 1:4, lwd = 2, bty = "n")
 ```
 
-The leftmost number in the legend is **gtype** and the rightmost number is **dtype**. COULD IMPROVE HOW THE LEGEND LOOKS LATER! Perhaps also change the xlim. 
+The leftmost number in the legend is **gtype** and the rightmost number is **dtype**. The $x$-axis is limited to 1500 in order to see more clearly what is happening in the beginning. 
 
-It looks like the different combinations of graft and disease types yield significantly different survival times. When looking at longevity, the combination of allogenic graft type and Non Hodgkin lymphoma yields the largest survival (1:1), followed by autologous graft type and Hodgkins disease (2:2). The combination of allogenic graft type and Hodgkins disease (1:2) seams to yield very low survival. However, not that this combination has far fewer events than the other combinations in the data set (5, compared to 11, 12 and 15). 
-CLEAN THIS UP A BIT. 
+It looks like the different combinations of graft and disease types yield significantly different survival times. Considering longevity, the combination of allogenic graft type and Non Hodgkin lymphoma yields the largest survival, closely followed by autologous graft type and Hodgkins disease. The combination of allogenic graft type and Hodgkins disease seams to yield very low survival. Note that all combinations have a right-censored last time in the data set, except the combination of allogenic graft type and Hodgkins disease, which has a survival that ends in zero, because the last time is a failure time. 
 
 ## 4.c)
 
-Fit the proportional hazards model that includes graft type, disease type, the interaction of both and the Karnofsky index.   
-All test shows that the model is significantly better than the baseline.
-The Karnofsky index is significant. 
-How do we interpret dtype/gtype here?
+Fit the proportional hazards model that includes graft type, disease type, the interaction of both and the Karnofsky index. 
 
 
 ```{r}
 proph <- coxph(srem ~ gtype + dtype + gtype:dtype + score, data = hodg)
 summary(proph)
 ```
+
+As is seen from the output above, all three tests shows that the model is significantly better than the baseline. The Karnofsky index (`score`) is significant. Moreover, when choosing a significance level of $\alpha = 0.05$, the parameter estimate comparing Hodgkings disease to non Hodgkins disease is significant. 
+
+Since the parameter estimation for the Karnofsky index is negative, the model is predicting that an increase in the Karnofsky score, while all other covariates are kept static, increases the instantaneous risk of death or relapse. On the contrary, having Hodgkins disease is predicted as being protective compared to not having it, when considering the other covariates as static. 
+
+**Skriv opp modellen og tolk skikkelig!**
 
 ## 4.d)
 Estimate the hazard ratios associated to the graft type and interpret both values.
@@ -287,3 +290,11 @@ rownames(HRmat) <- c("HR| Non Hodgkin lymphoma", "HR| Hodgkins disease")
 colnames(HRmat) <- c("logHR", "HR", "Lower 95%", "Upper 95%")
 HRmat
 ```
+
+## 4.e)
+
+The proportional hazards assumption is checked. 
+
+## 4.f)
+
+Concerning the estimation of the four model parameterse, are there any influential observations?
