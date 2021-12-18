@@ -1,5 +1,5 @@
 ---
-title: "Exercises Topic 5 and &"
+title: "Exercises Topic 5 and 6"
 subtitle: "Lifetime Data Analysis - Autumn 2021"
 author: "Alexander and Ulrik"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
@@ -18,7 +18,7 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = params$show_code, warning = F)
+knitr::opts_chunk$set(echo = T, warning = F)
 #setwd("/home/ajo/gitRepos/lifetime/Exercises3")
 rm(list = ls())
 library(KMsurv)
@@ -29,22 +29,19 @@ library(GofCens)
 ```
 
 # Exercise 1
-The data frame $\textbf{tongue}$ of the R package $\textbf{KMsurv}$ contains the survival times (in weeks) of 80 patients with oral cancer. The objective of this exercise is to study the possible relation of this cancer with the tumour DNA profile, which is either aneuploid or diploid.
+The data frame $\textbf{tongue}$ of the R package $\textbf{KMsurv}$ contains the survival times (in weeks) of 80 patients with oral cancer. The objective of this exercise is to study the possible relation of this cancer with the tumour DNA profile, which is either aneuploid (type 1) or diploid (type 2) .
 
 ```{r, results = "hide"}
 data(tongue)
-head(tongue)
-str(tongue)
+tongue$type <- factor(tongue$type)
 ```
 
 
 ## 1.a)
 
-The survival curves are plotted below. Observe that the survival of the aneuploid tumour is greater than the survival of the diploid tumour.  
-As the survival curves do not go to zero there is right censoring in both groups.
+The survival curves are plotted below. Observe that the survival of the aneuploid tumour is greater than the survival of the diploid tumour. As the survival curves do not go to zero there is right censoring in both groups.
 
 ```{r}
-# a) Draw the survival curves. 
 s <- with(tongue, Surv(time, delta))
 t <- npsurv(s ~ type, tongue)
 
@@ -64,55 +61,45 @@ $$
     
 where $S_1(t)$ and $S_2(t)$ refer to the survival curves of tumour type 1 and 2 respectively. 
     
-The result from the logrank test is a $Z$-value of 1.7 and a $p$-value of $0.0949$, which means that we would conclude not to reject $H_0$ when choosing any reasonable significance level for the $p$-value. This means that, according to the logrank test, there is not enough evidence to conclude that the tumour DNA profile is related to the survival of the cancer patients, i.e. one does not conclude that one of the tumour profile leads to more severe cancer. 
+The result from the logrank test is a $Z$-value of 1.7 and a $p$-value of $0.0949$, which means that we would conclude not to reject $H_0$ when choosing a significance level of (for example) $0.05$ for the $p$-value. This means that, according to the logrank test, there is not enough evidence to conclude that the tumour DNA profile is related to the survival of the cancer patients, i.e. one does not conclude that one of the tumour profiles leads to more severe cancer. 
 
 ```{r}
-# b) Logrank test. 
 s2 <- with(tongue, Surv(time, delta) ~ type)
 FHtestrcc(s2)
 ```
 
 ## 1.c)
 
-The log-logistic regression model is fitted with the single covariate 'Tumour type'. This model is used to test the same hypothesis as in \textbf{b)}. In this case, the null and alternative hypothesis can be formulated as 
+The log-logistic regression model is fitted with the single covariate 'Tumour type'. This model is used to test the same hypothesis as in $\textbf{b)}$. In this case, the null and alternative hypothesis can be formulated as 
 $$
   H_0: \gamma_1 = 0 \text{ vs. } H_1 : \gamma_1 \neq 0,
 $$
-where $\gamma_1$ is the covariate coefficent for tumour DNA profile in the model.
-The regression gives $\gamma_1 = -0.79$ with $p$-value 0.051, which 
-gives significant evidence to reject the null hypothesis. 
-I.e., the test suggests that DNA profile has an impact on the survival time of
-cancer patients.
+where $\gamma_1$ is the covariate coefficent for tumour DNA profile in the model. The regression gives $\hat{\gamma}_1 = -0.79$ with $p$-value 0.051, which gives significant evidence to reject the null hypothesis with a level of $\alpha = 0.05$. Thus, the test suggests that DNA profile has an impact on the survival time of cancer patients. The negative value of the parameter estimate suggests that the diploid tumour profile is non-protective, i.e. that it lowers the survival of a person. This will be more closely examined in the next part of the problem. 
 
 ```{r}
-# c) Fit log-logistic model and use the model to test the same hypothesis. 
 loglogistic <- survreg(s ~ type, data = tongue, dist = "loglogistic")
 summary(loglogistic)
 ```
 
 ## 1.d)
 Since the log-logistic model can be viewed as a proportional odds model,
-the odds ratio $\exp \{ \boldsymbol{\beta'Z} \} = \exp \{ -\boldsymbol{\gamma'Z}/\sigma \}$
-indicates how the odds to survive change with respect to covariates $\textbf{Z}$
+the odds ratio $\exp \{ - \boldsymbol{\beta'Z} \} = \exp \{ \boldsymbol{\gamma'Z}/\sigma \}$
+indicates how the odds to survive changes with respect to covariates $\textbf{Z}$
 compared to $\textbf{Z = 0}$.
-For this model a patient with DNA profile diploid has a survival odds 2.28
-times higher than a patient with DNA profile aneuploid.
+For this model a patient with DNA profile diploid has a survival odds `r round(with(loglogistic, exp(coefficients[2] / scale)), 2)`
+times the survival of a patient with DNA profile aneuploid. This means that the odds of surviving with the diploid profile is `r round(with(loglogistic, exp(coefficients[2] / scale)), 2)*100`\% of the odds of surviving with the aneuploid profile. 
 
-Similarly, the accelerated factor $\exp \{ \boldsymbol{-\gamma'Z} \}$ 
-describes the change in time scale compared to the baseline 
-$\textbf{Z = 0}$. (Not quite sure what this means)?
-Since the scale parameter is close to one, the accelerated factor is  close
-to the odds ratio, specifically 2.205.
+Similarly, the acceleration factor $\exp \{ \boldsymbol{-\gamma'Z} \}$ describes the change in time scale compared to the baseline 
+$\textbf{Z = 0}$. The value of the acceleration factor in this case is `r round(with(loglogistic, exp(-coefficients[2])), 3)`. This means that the death of a person with a diploid profile is accelerated by `r round(with(loglogistic, exp(-coefficients[2])), 3)` compared to the death of a person with a aneuploid profile. For example, considering medians, this means that the median of a person with an aneuploid profile is estimated to being `r round(with(loglogistic, exp(-coefficients[2])), 3)` larger than the median of a person with a diploid profile, which fits nicely with the survival curves we have seen earlier. 
 
 ```{r}
-with(loglogistic, exp(-coefficients[2] / scale))  # Odds ratio
-with(loglogistic, exp(-coefficients[2]))  # Accelerated factor
+with(loglogistic, exp(coefficients[2] / scale))  # Odds ratio.
+with(loglogistic, exp(-coefficients[2]))  # Acceleration factor.
 ```
-
 
 ## 1.e) 
 
-The residuals of the log-logistic regression model are plotted below. As one can see, the standard logistic distribution seems to fit the residual KM-estimate well \textcolor{red}{Omformuler dette litt}, which can be used as an indication that the log-logistic model is appropriate for this data. 
+The residuals of the log-logistic regression model are plotted below. As one can see, the standard logistic distribution seems to fit the residual KM-estimate well, which can be used as an indication that the log-logistic model is appropriate for this data. This is because the standard logistic distribution seems a reasonable choice for the error $W$. 
 
 ```{r}
 loglo.pred <- predict(loglogistic, type = "linear")
@@ -300,6 +287,3 @@ rownames(HRmat) <- c("HR| Non Hodgkin lymphoma", "HR| Hodgkins disease")
 colnames(HRmat) <- c("logHR", "HR", "Lower 95%", "Upper 95%")
 HRmat
 ```
-
-
-
