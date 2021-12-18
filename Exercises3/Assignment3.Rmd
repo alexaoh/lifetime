@@ -130,7 +130,7 @@ mu <- 2
 sigma <- 1
 location <- log(mu^2 / sqrt(sigma^2 + mu^2))
 shape <- sqrt(log(1 + (sigma^2 / mu^2)))
-RVT <- rlnorm(3000, meanlog = location, shape)
+RVT <- rlnorm(300, meanlog = location, sdlog = shape)
 # https://en.wikipedia.org/wiki/Log-normal_distribution#Arithmetic_moments
 # https://msalganik.wordpress.com/2017/01/21/making-sense-of-the-rlnorm-function-in-r/
 ```
@@ -146,7 +146,7 @@ RVC <- rexp(300, rate = 1/20)
 
 ## 2.c)
 
-The variables $Y = \min(T, C)$ and $\delta = \mathbf{1}_{T\leq C}$ are created below. The table below shows the counts of exact failure times and censoring times.
+The variables $Y = \min(T, C)$ and $\delta = \mathbf{1}_{\{T\leq C\}}$ are created below. The table below shows the counts of exact failure times and censoring times.
 
 ```{r, echo = T}
 obs <- pmin(RVT, RVC)
@@ -154,7 +154,7 @@ cens <- as.numeric(RVT <= RVC)
 (tab <- table(cens))
 ```
 
-The proportion of right-censored survival times is thus `r round(tab[[1]]/tab[[2]], 3)`.
+The proportion of right-censored survival times is thus `r round(tab[[1]]/(tab[[1]]+tab[[2]]), 3)`.
 
 ## 2.d)
 
