@@ -179,7 +179,7 @@ pre code {
 <h1 class="title toc-ignore">Exercises Topic 5 and 6</h1>
 <h3 class="subtitle">Lifetime Data Analysis - Autumn 2021</h3>
 <h4 class="author">Alexander and Ulrik</h4>
-<h4 class="date">18 desember, 2021</h4>
+<h4 class="date">20 desember, 2021</h4>
 
 </div>
 
@@ -454,14 +454,13 @@ summary(proph)</code></pre>
 ## Likelihood ratio test= 28.87  on 4 df,   p=8e-06
 ## Wald test            = 25.82  on 4 df,   p=3e-05
 ## Score (logrank) test = 34.66  on 4 df,   p=5e-07</code></pre>
-<p>As is seen from the output above, all three tests shows that the model is significantly better than the baseline. The Karnofsky index (<code>score</code>) is significant. Moreover, when choosing a significance level of <span class="math inline">\(\alpha = 0.05\)</span>, the parameter estimate comparing Hodgkings disease to non Hodgkins disease is significant.</p>
-<p>Since the parameter estimation for the Karnofsky index is negative, the model is predicting that an increase in the Karnofsky score, while all other covariates are kept static, increases the instantaneous risk of death or relapse. On the contrary, having Hodgkins disease is predicted as being protective compared to not having it, when considering the other covariates as static.</p>
-<p><strong>Skriv opp modellen og tolk skikkelig!</strong></p>
+<p>As is seen from the output above, all three tests shows that the model is significantly better than the null model The Karnofsky index (<code>score</code>) is significant. Moreover, when choosing a significance level of <span class="math inline">\(\alpha = 0.05\)</span>, the parameter estimate comparing Hodgkins disease to non Hodgkins disease is significant.</p>
+<p>Since the parameter estimation for the Karnofsky index is negative, the model is predicting that an increase in the Karnofsky score, while all other covariates are kept static, decreases the instantaneous risk of death or relapse. More precisely, for a unitary increase in the Karnofsky index, an individual with the same profile (except the change in the score) will have an instantaneous risk that is <span class="math inline">\(\approx e^{-0.05441} \approx\)</span> 0.95 times the individual before the increase. On the contrary, having Hodgkins disease is predicted as being non-protective compared to not having it, when considering the other covariates as static. More precisely, having the disease will yield an instantaneous risk of <span class="math inline">\(\approx e^{1.68314} \approx\)</span> 5.38 times the instantaneous risk when not having the disease, for an individual with the same profile (the remaining covariates). Similar interpretations can be done with the two other covariates, but this is excluded since they are not statistically significant.</p>
 </div>
 <div id="d-2" class="section level2">
 <h2>4.d)</h2>
-<p>Estimate the hazard ratios associated to the graft type and interpret both values.</p>
-<p>The hazard ratio measures the comparative instantaneous risk of death. Since there exists interaction between the graph type and the disease type, two hazard ratios is computed, one for patients with non Hodgkin lymphoma, and one for patients with Hodgkins disease. The hazard ratios are 1.704 and 0.326 respectively. This means that patients receiving an autologous graft have 1.704 times higher instantaneous risk of dying, given that the disease type is non Hodgkin lymphoma and the Karnofsky index is the same. Similarly, patients receiving an autologous graft have 0.326 times lower instantaneous risk of dying, given that the disease type is Hodgkins disease and the Karnofsky index is the same.</p>
+<p>The estimated hazard ratios associated to the graft type are calculated in the following.</p>
+<p>The hazard ratio measures the comparative instantaneous risk of death. Since there exists interaction between the graft type and the disease type, two hazard ratios are computed, one for patients with non Hodgkin lymphoma, and one for patients with Hodgkins disease. The hazard ratios are 1.704 and 0.326 respectively. This means that patients receiving an autologous graft have 1.704 times higher instantaneous risk of dying compared to patients with allogenic graft type, given that the disease type is non Hodgkin lymphoma and the Karnofsky index is the same. Similarly, patients receiving an autologous graft have 0.326 times lower instantaneous risk of dying compared to patients with allogenic graft type, given that the disease type is Hodgkins disease and the Karnofsky index is the same.</p>
 <pre class="r"><code>library(Epi)
 ctmat &lt;- matrix(c(1,0,0,0,1,0,0,1), byrow = TRUE, nr = 2)
 HRmat &lt;- round(ci.lin(proph, ctr.mat = ctmat, Exp = TRUE), 3)[, c(1, 5:7)]

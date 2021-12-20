@@ -261,25 +261,24 @@ proph <- coxph(srem ~ gtype + dtype + gtype:dtype + score, data = hodg)
 summary(proph)
 ```
 
-As is seen from the output above, all three tests shows that the model is significantly better than the baseline. The Karnofsky index (`score`) is significant. Moreover, when choosing a significance level of $\alpha = 0.05$, the parameter estimate comparing Hodgkings disease to non Hodgkins disease is significant. 
+As is seen from the output above, all three tests shows that the model is significantly better than the null model The Karnofsky index (`score`) is significant. Moreover, when choosing a significance level of $\alpha = 0.05$, the parameter estimate comparing Hodgkins disease to non Hodgkins disease is significant. 
 
-Since the parameter estimation for the Karnofsky index is negative, the model is predicting that an increase in the Karnofsky score, while all other covariates are kept static, increases the instantaneous risk of death or relapse. On the contrary, having Hodgkins disease is predicted as being protective compared to not having it, when considering the other covariates as static. 
-
-**Skriv opp modellen og tolk skikkelig!**
+Since the parameter estimation for the Karnofsky index is negative, the model is predicting that an increase in the Karnofsky score, while all other covariates are kept static, decreases the instantaneous risk of death or relapse. More precisely, for a unitary increase in the Karnofsky index, an individual with the same profile (except the change in the score) will have an instantaneous risk that is $\approx e^{-0.05441} \approx$ `r round(exp(proph$coefficients[[3]]), 2)` times the individual before the increase. On the contrary, having Hodgkins disease is predicted as being non-protective compared to not having it, when considering the other covariates as static. More precisely, having the disease will yield an instantaneous risk of $\approx e^{1.68314} \approx$ `r round(exp(proph$coefficients[[2]]), 2)` times the instantaneous risk when not having the disease, for an individual with the same profile (the remaining covariates). Similar interpretations can be done with the two other covariates, but this is excluded since they are not statistically significant. 
 
 ## 4.d)
-Estimate the hazard ratios associated to the graft type and interpret both values.
+
+The estimated hazard ratios associated to the graft type are calculated in the following. 
 
 The hazard ratio measures the comparative instantaneous risk of death.
-Since there exists interaction between the graph type and the disease type,
-two hazard ratios is computed, one for patients with non Hodgkin lymphoma,
+Since there exists interaction between the graft type and the disease type,
+two hazard ratios are computed, one for patients with non Hodgkin lymphoma,
 and one for patients with Hodgkins disease. The 
 hazard ratios are 1.704 and 0.326 respectively.
 This means that patients receiving an autologous graft have 1.704 times higher 
-instantaneous risk of dying, given that the disease type is non Hodgkin lymphoma
+instantaneous risk of dying compared to patients with allogenic graft type, given that the disease type is non Hodgkin lymphoma
 and the Karnofsky index is the same. 
 Similarly, patients receiving an autologous graft have 0.326 times lower 
-instantaneous risk of dying, given that the disease type is Hodgkins disease
+instantaneous risk of dying compared to patients with allogenic graft type, given that the disease type is Hodgkins disease
 and the Karnofsky index is the same. 
 
 ```{r}
@@ -290,6 +289,8 @@ rownames(HRmat) <- c("HR| Non Hodgkin lymphoma", "HR| Hodgkins disease")
 colnames(HRmat) <- c("logHR", "HR", "Lower 95%", "Upper 95%")
 HRmat
 ```
+
+
 
 ## 4.e)
 

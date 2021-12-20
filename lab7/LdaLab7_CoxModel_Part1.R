@@ -37,16 +37,15 @@ legend("bottomleft", levels(myeloma$BJP), col = 1:2, lwd = 3, bty = "n")
 ## ======================
 (cox1 <- coxph(myesurv ~ sex + BJP, myeloma))
 summary(cox1)
-# Here: exp(\beta_2) = 10.6 is the HR comparing NoBJP vs. BJP, comparing either men or women. 
 
 ## Including the interaction between both variables
 ## ------------------------------------------------
 (cox1 <- update(cox1,  ~ . + sex:BJP))
 summary(cox1)
-# Here: exp(\beta_2) = 10.6 is the HR comparing NoBJP vs. BJP for only women. (since women is the reference category)
+# Here: exp(\beta_2) = 1.6 is the HR comparing NoBJP vs. BJP for only women. (since women is the reference category)
 # exp(\beta_2 + \beta_3) = 1.12 is the HR comparing NoBJP vs. BJP for only men. 
 # See some notes in my book from the lecture! (Lab7_CoxModel)
-# exp(\beta_3) = 1.12 can be interpreted as 
+# exp(\beta_3) = 1.12 cannot be interpreted as a HR. 
 
 ## The model-based hazard ratios associated with the absence of the BJ protein
 ## ---------------------------------------------------------------------------
