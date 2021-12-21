@@ -294,8 +294,100 @@ HRmat
 
 ## 4.e)
 
-The proportional hazards assumption is checked. 
+The proportional hazards assumption is checked, using the Schoenfeld residuals.
+
+```{r}
+schres <- residuals(proph, "schoenfeld")
+
+prop.haz.test <- cox.zph(proph)
+```
+
+```{r}
+par(mfrow = c(2, 3), font = 2, font.lab = 4, font.axis = 2, las = 1,
+    cex.lab = 1.3, cex.axis = 1.2)
+plot(prop.haz.test, lwd = 2)
+```
+
+The Schoenfeld residuals are plotted above. None of the covariates look like they have a line with slope zero, i.e. it looks like they all exhibit a systematic pattern. This means that, based on the plot, the proportional hazards assumption does not hold for any of the covariates. 
+
+```{r}
+prop.haz.test
+```
+
+The $p$-values in the table above are $p$-values from a two-sided test of slope $= 0$ in the Schoenfeld residuals plotted earlier. To a significance level of $\alpha = 0.05$, the only null hypothesis to be rejected is the one concerning the interaction term. 
+
+Despite the results from the tests above, we would still conclude that the proportional hazards assumption does not hold for any of the covariates, which means that the model is not suitable in this case. 
 
 ## 4.f)
 
-Concerning the estimation of the four model parameterse, are there any influential observations?
+Concerning the estimation of the four model parameters, are there any influential observations?
+
+A transformation of the score residuals for each of the four coefficients is plotted below. More precisely, each residual that is plotted is the approximate change in the coefficient vector if the observation in question is dropped, scaled by the standard error of the coefficients. 
+
+```{r}
+dfbet <- residuals(proph, type = "dfbeta")
+
+par(mfrow = c(2, 2), font = 2, font.lab = 4, font.axis = 2, las = 1,
+    cex.lab = 1.3, cex.axis = 1.2)
+for (i in 1:4) {
+  plot(dfbet[, i], pch = 16, ylab = "")
+  title(names(coef(proph))[i])
+  axis(1, at = seq(5, 45, 5))
+}
+```
+
+In order to identify which observations are influential, text describing each residual is plotted alongside the points. They can also be identified manually by clicking on the plots using the `identify` function in R. 
+
+```{r}
+par(mfrow = c(1,1), font = 2, font.lab = 4, font.axis = 2, las = 1, cex.lab = 1.3,
+    cex.axis = 1.2)
+plot(dfbet[, 1], pch = 16, ylab = "",xlim = c(-20, 60))
+title(names(coef(proph))[1])
+axis(1, at = seq(5, 45, 5))
+text(dfbet[, 1],
+         labels = paste0("Row: ", rownames(hodg), "; Time: ", hodg$time,
+                         "; Cens: ", hodg$delta, "; gtype: ", hodg$gtype))
+
+par(mfrow = c(1,1), font = 2, font.lab = 4, font.axis = 2, las = 1, cex.lab = 1.3,
+    cex.axis = 1.2)
+plot(dfbet[, 2], pch = 16, ylab = "", xlim = c(-20, 60))
+title(names(coef(proph))[2])
+axis(1, at = seq(5, 45, 5))
+text(dfbet[, 2],
+         labels = paste0("Row: ", rownames(hodg), "; Time: ", hodg$time,
+                         "; Cens: ", hodg$delta, "; dtype: ", hodg$dtype))
+
+par(mfrow = c(1,1), font = 2, font.lab = 4, font.axis = 2, las = 1, cex.lab = 1.3,
+    cex.axis = 1.2)
+plot(dfbet[, 3], pch = 16, ylab = "", xlim = c(-20, 60))
+title(names(coef(proph))[3])
+axis(1, at = seq(5, 45, 5))
+text(dfbet[, 3],
+         labels = paste0("Row: ", rownames(hodg), "; Time: ", hodg$time,
+                         "; Cens: ", hodg$delta, "; score: ", hodg$score))
+
+par(mfrow = c(1,1), font = 2, font.lab = 4, font.axis = 2, las = 1, cex.lab = 1.3,
+    cex.axis = 1.2)
+plot(dfbet[, 4], pch = 16, ylab = "", xlim = c(-20, 60), ylim = c(-0.3, 0.3))
+title(names(coef(proph))[4])
+axis(1, at = seq(5, 45, 5))
+text(dfbet[, 4],
+         labels = paste0("Row: ", rownames(hodg), "; Time: ", hodg$time,
+                         "; Cens: ", hodg$delta, "; gtype: ", hodg$gtype, "; dtype: ", hodg$dtype))
+```
+
+There are some influential observations. They can be found for large absolute values that deviate from zero in the plots above. Examples like row 1 and row 15 seem to be influential for several of the covariates. 
+
+For example, row 1 
+
+```{r}
+hodg[1,]
+```
+
+has a large score and looks to be influential for both `gtypescore` and `dtypeHodgk`. Estimating the Cox model without the first row gives 
+
+```{r}
+summary(coxph(Surv(time, delta) ~ gtype + dtype + gtype:dtype + score, data = hodg[-1,]))
+```
+
+where we see that the hazard ratios for the two mentioned covariates change quite a bit. 
