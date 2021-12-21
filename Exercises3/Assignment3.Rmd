@@ -325,7 +325,7 @@ Concerning the estimation of the four model parameters, are there any influentia
 A transformation of the score residuals for each of the four coefficients is plotted below. More precisely, each residual that is plotted is the approximate change in the coefficient vector if the observation in question is dropped, scaled by the standard error of the coefficients. 
 
 ```{r}
-dfbet <- residuals(proph, type = "dfbeta")
+dfbet <- residuals(proph, type = "dfbetas")
 
 par(mfrow = c(2, 2), font = 2, font.lab = 4, font.axis = 2, las = 1,
     cex.lab = 1.3, cex.axis = 1.2)
