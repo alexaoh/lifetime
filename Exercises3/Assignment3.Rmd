@@ -192,8 +192,8 @@ $$
 \begin{align*}
         P(T \geq a_j ; \textbf{z}) &= S_\textbf{z}(a_j) \\\
                                    &= \exp (- \Lambda_\textbf{z}(a_j)) \\
-                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)\exp (\boldsymbol{\beta'z}dt + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)\exp(\boldsymbol{\beta'z}dt)))) \\
-                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)dt + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)dt)\exp (\boldsymbol{\beta'z})) \\
+                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)\exp (\boldsymbol{\beta'z})dt + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)\exp(\boldsymbol{\beta'z})dt)) \\
+                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)dt + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)dt)\exp (\boldsymbol{\beta'z}) \\
                                    &= \left( \exp(-\Lambda_\textbf{0}(a_j)) \right)^{\exp (\boldsymbol{\beta'z})} \\
                                    &= (P(T \geq a_j ; \textbf{0}))^{\exp (\boldsymbol{\beta'z})}.
 \end{align*}
@@ -208,7 +208,7 @@ $$
 or equivalently
 $$
 \begin{equation*}
-        \log (1 - \lambda_j(\textbf{z})) = (1 - \lambda_j) \exp (\boldsymbol{\beta'z}).
+        \log (1 - \lambda_j(\textbf{z})) = \log (1 - \lambda_j) \exp (\boldsymbol{\beta'z}).
 \end{equation*}
 $$
 
@@ -266,8 +266,6 @@ As is seen from the output above, all three tests shows that the model is signif
 Since the parameter estimation for the Karnofsky index is negative, the model is predicting that an increase in the Karnofsky score, while all other covariates are kept static, decreases the instantaneous risk of death or relapse. More precisely, for a unitary increase in the Karnofsky index, an individual with the same profile (except the change in the score) will have an instantaneous risk that is $\approx e^{-0.05441} \approx$ `r round(exp(proph$coefficients[[3]]), 2)` times the individual before the increase. On the contrary, having Hodgkins disease is predicted as being non-protective compared to not having it, when considering the other covariates as static. More precisely, having the disease will yield an instantaneous risk of $\approx e^{1.68314} \approx$ `r round(exp(proph$coefficients[[2]]), 2)` times the instantaneous risk when not having the disease, for an individual with the same profile (the remaining covariates). Similar interpretations can be done with the two other covariates, but this is excluded since they are not statistically significant. 
 
 ## 4.d)
-
-The estimated hazard ratios associated to the graft type are calculated in the following. 
 
 The hazard ratio measures the comparative instantaneous risk of death.
 Since there exists interaction between the graft type and the disease type,
