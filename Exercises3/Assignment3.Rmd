@@ -192,8 +192,8 @@ $$
 \begin{align*}
         P(T \geq a_j ; \textbf{z}) &= S_\textbf{z}(a_j) \\\
                                    &= \exp (- \Lambda_\textbf{z}(a_j)) \\
-                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)\exp (\boldsymbol{\beta'z})dt + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)\exp(\boldsymbol{\beta'z})dt)) \\
-                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)dt + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)dt)\exp (\boldsymbol{\beta'z}) \\
+                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)\exp (\boldsymbol{\beta'z})\mathrm{d}t + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)\exp(\boldsymbol{\beta'z})\mathrm{d}t)) \\
+                                   &= \exp (-(\int_{a_0}^{a_1}\lambda_0(t)\mathrm{d}t + \ldots + \int_{a_{j-1}}^{a_j}\lambda_0(t)\mathrm{d}t)\exp (\boldsymbol{\beta'z}) \\
                                    &= \left( \exp(-\Lambda_\textbf{0}(a_j)) \right)^{\exp (\boldsymbol{\beta'z})} \\
                                    &= (P(T \geq a_j ; \textbf{0}))^{\exp (\boldsymbol{\beta'z})}.
 \end{align*}
@@ -208,7 +208,7 @@ $$
 or equivalently
 $$
 \begin{equation*}
-        \log (1 - \lambda_j(\textbf{z})) = \log (1 - \lambda_j) \exp (\boldsymbol{\beta'z}).
+        \log (1 - \lambda_j(\textbf{z})) = \log (1 - \lambda_j(\textbf{0})) \exp (\boldsymbol{\beta'z}).
 \end{equation*}
 $$
 
