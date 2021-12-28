@@ -6,13 +6,14 @@ date: "`r format(Sys.time(), '%d %B, %Y')`"
 params: 
   show_code: FALSE
 output: 
-  html_document:
-    code_folding: hide
-    toc: true
-    toc_depth: 3
-    theme: readable
-    highlight: textmate
-    number_sections: false
+  pdf_document
+  # html_document:
+  #   code_folding: hide
+  #   toc: true
+  #   toc_depth: 3
+  #   theme: readable
+  #   highlight: textmate
+  #   number_sections: false
 editor_options: 
   chunk_output_type: console
 ---
@@ -53,11 +54,10 @@ title("Survival functions according to tumour DNA profile")
 ## 1.b) 
 
 The logrank test is used to test the hypothesis that survival is not related to tumour type. The hypothesis that is tested can be formulated as 
-$$
-\begin{equation}
+
+\begin{equation*}
         H_0: S_1(t) = S_2(t) \text{ vs. } H_1: S_1(t) \neq S_2(t),
-\end{equation}
-$$
+\end{equation*}
     
 where $S_1(t)$ and $S_2(t)$ refer to the survival curves of tumour type 1 and 2 respectively. 
     
@@ -167,28 +167,35 @@ cumhazPlot(obs, cens, col = 4, distr = c("wei", "loglo"), ggplo = T)
 # Exercise 3
 
 Assume that the model assumptions for the Cox proportional hazards model holds for a continuous survival time $T$ with covariates $\textbf{Z} = (Z_1, \ldots, Z_p)'$, i.e., that,
-$$
+
+
 \begin{equation*}
         \lambda(t; \textbf{z}) = \lambda_0(t) \exp (\boldsymbol{\beta'z}), 
 \end{equation*}
-$$
+
+
 but that the survival times are grouped in the intervals $[0 = a_0, a_1), \ldots, [a_{g-1}, a_g)$.
 The corresponding hazards are defined as 
-$$
+
+
 \begin{equation*}
         \lambda_j(\textbf{z}) = P(T < a_j |T \geq a_{j-1}; \textbf{z}), \ j = 1, \ldots, g.
 \end{equation*}
-$$
+
+
 Then we can write 
-$$
+
+
 \begin{align*}
         1 - \lambda_j(\textbf{z}) &= P(T \geq a_j | T \geq a_{j-1}; \textbf{z}) \\
                                   &= \frac{P(T \geq a_j, T \geq a_{j-1} ; \textbf{z})}{P(T \geq a_{j-1}; \textbf{z})} \\
                                   &= \frac{P(T \geq a_j; \textbf{z})}{P(T \geq a_{j-1}; \textbf{z})}.
 \end{align*}
-$$
+
+
 First we observe that 
-$$
+
+
 \begin{align*}
         P(T \geq a_j ; \textbf{z}) &= S_\textbf{z}(a_j) \\\
                                    &= \exp (- \Lambda_\textbf{z}(a_j)) \\
@@ -197,20 +204,23 @@ $$
                                    &= \left( \exp(-\Lambda_\textbf{0}(a_j)) \right)^{\exp (\boldsymbol{\beta'z})} \\
                                    &= (P(T \geq a_j ; \textbf{0}))^{\exp (\boldsymbol{\beta'z})}.
 \end{align*}
-$$
+
+
 The exact same argument for $P(T \geq a_{j-1} ; \textbf{z})$ gives us 
-$$
+
+
 \begin{align*}
         1 - \lambda_j(\textbf{z}) &= \left( \frac{P(T \geq a_j; \textbf{0})}{P(T \geq a_{j-1}; \textbf{0})} \right)^{\exp (\boldsymbol{\beta'z})} \\
                                   &= (1 - \lambda_j(\textbf{0}))^{\exp (\boldsymbol{\beta'z})}
 \end{align*}
-$$
+
+
 or equivalently
-$$
+
 \begin{equation*}
         \log (1 - \lambda_j(\textbf{z})) = \log (1 - \lambda_j(\textbf{0})) \exp (\boldsymbol{\beta'z}).
 \end{equation*}
-$$
+
 
 # Exercise 4
 
@@ -371,7 +381,8 @@ title(names(coef(proph))[4])
 axis(1, at = seq(5, 45, 5))
 text(dfbet[, 4],
          labels = paste0("Row: ", rownames(hodg), "; Time: ", hodg$time,
-                         "; Cens: ", hodg$delta, "; gtype: ", hodg$gtype, "; dtype: ", hodg$dtype))
+                         "; Cens: ", hodg$delta, "; gtype: ", 
+                         hodg$gtype, "; dtype: ", hodg$dtype))
 ```
 
 There are some influential observations. They can be found for large absolute values that deviate from zero in the plots above. Examples like row 1 and row 15 seem to be influential for several of the covariates. 
